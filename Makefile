@@ -4,22 +4,22 @@ build:
 	mkctl kustomize build .
 
 apply:
-	mkctl kustomize build . | kubectl apply -f -
+	mkctl kustomize build . | mkctl apply -f -
 
 diff:
-	mkctl kustomize build . | kubectl diff -f -
+	mkctl kustomize build . | mkctl diff -f -
 
 superuser:
-	POD=$$(kubectl get pods -n saleor | grep -v -E 'mailhog|jaeger|db|redis|checkout|dashboard|storefront|worker' | tail -n 1 | cut -d ' ' -f 1); kubectl exec -i -t $${POD} -c saleor-api -n saleor -- python manage.py createsuperuser
+	POD=$$(mkctl get pods -n saleor | grep -v -E 'mailhog|jaeger|db|redis|checkout|dashboard|storefront|worker' | tail -n 1 | cut -d ' ' -f 1); mkctl exec -i -t $${POD} -c saleor-api -n saleor -- python manage.py createsuperuser
 
 sendtestemail:
-	POD=$$(kubectl get pods -n saleor | grep -v -E 'mailhog|jaeger|db|redis|checkout|dashboard|storefront|worker' | tail -n 1 | cut -d ' ' -f 1); kubectl exec -i -t $${POD} -c saleor-api -n saleor -- python manage.py sendtestemail --admin
+	POD=$$(mkctl get pods -n saleor | grep -v -E 'mailhog|jaeger|db|redis|checkout|dashboard|storefront|worker' | tail -n 1 | cut -d ' ' -f 1); mkctl exec -i -t $${POD} -c saleor-api -n saleor -- python manage.py sendtestemail --admin
 
 delete:
-	mkctl kustomize build . | kubectl delete -f -
+	mkctl kustomize build . | mkctl delete -f -
 
 dry-apply:
-	mkctl kustomize build . | kubectl apply -f - --dry-run=client
+	mkctl kustomize build . | mkctl apply -f - --dry-run=client
 
 dry-delete:
-	mkctl kustomize build . | kubectl delete -f - --dry-run=client
+	mkctl kustomize build . | mkctl delete -f - --dry-run=client

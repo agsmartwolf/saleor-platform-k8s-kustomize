@@ -74,7 +74,7 @@ spec:
           name: saleor-static-volume
       containers:
       - name: saleor-api
-        image: saleor-image
+        image: ghcr.io/saleor/saleor:3.14.5
         imagePullPolicy: Always
         resources:
           requests:
