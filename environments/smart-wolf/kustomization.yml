@@ -1,0 +1,64 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: saleor
+
+commonLabels:
+  app: saleor-platform
+
+images:
+  - name: saleor-image
+    newName: sw/saleor
+    newTag: "3.14.5"
+  - name: saleor-dashboard-image
+    newName: sw/saleor-dashboard
+    newTag: "3.12.3"
+
+resources:
+  - ../../base
+  - ../../saleor
+  - ../../saleor-dashboard
+  - ./saleor-dashboard
+  - infra/ingress.yml
+
+patchesStrategicMerge:
+  - infra/storage-class-gp3.yml
+  - saleor-dashboard/saleor-dashboard.yml
+
+configMapGenerator:
+  - name: saleor-env
+    behavior: replace
+    envs:
+      - config/backend.env
+      - config/common.env
+  - name: saleor-dashboard-env
+    behavior: replace
+    envs:
+      - config/dashboard.env
+
+secretGenerator:
+  - name: saleor-rsa-key
+    behavior: replace
+    files:
+      - config/private.pem
+  - name: saleor-secret
+    behavior: replace
+    envs:
+      - config/secret.env
+  - name: db-secret
+    behavior: replace
+    envs:
+      - config/db.env
+  - name: nginx-htpasswd
+    behavior: replace
+    files:
+      - config/.htpasswd
+  - name: mailhog-smtp
+    behavior: replace
+    files:
+      - config/smtp.json
+  - name: mailhog-auth
+    behavior: replace
+    files:
+      - config/mailhog-auth

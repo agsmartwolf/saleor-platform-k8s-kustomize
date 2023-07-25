@@ -1,0 +1,171 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: saleor-ingress
+  annotations:
+    kubernetes.io/scheme: internet-facing
+    kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    kubernetes.io/load-balancer-attributes: routing.http2.enabled=true,idle_timeout.timeout_seconds=600
+    kubernetes.io/target-group-attributes: stickiness.enabled=true,stickiness.lb_cookie.duration_seconds=60
+    kubernetes.io/backend-protocol: HTTP
+#    kubernetes.io/actions.ssl-redirect: '{"Type": "redirect", "RedirectConfig": { "Protocol": "HTTPS", "Port": "443", "StatusCode": "HTTP_301"}}'
+    kubernetes.io/group.name: saleor-ingress
+    kubernetes.io/group.order: '15'
+    cert-manager.io/issuer: saleor-issuer
+spec:
+  tls:
+    - hosts:
+          - smart-wolf.dog
+          - api.smart-wolf.dog
+          - cdn.smart-wolf.dog
+          - jgr.smart-wolf.dog
+          - mhg.smart-wolf.dog
+      secretName: saleor-cert
+  rules:
+    - host: "smart-wolf.dog"
+      http:
+        paths:
+#          - path: /
+#            pathType: Prefix
+#            backend:
+#              service:
+#                name: ssl-redirect
+#                port:
+#                  name: use-annotation
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: saleor-dashboard
+                port:
+                  name: saleor-dsh
+    - host: "api.smart-wolf.dog"
+      http:
+        paths:
+#          - path: /
+#            pathType: Prefix
+#            backend:
+#              service:
+#                name: ssl-redirect
+#                port:
+#                  name: use-annotation
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: saleor
+                port:
+                  name: saleor-api
+    - host: "cdn.smart-wolf.dog"
+      http:
+        paths:
+#          - path: /
+#            pathType: Prefix
+#            backend:
+#              service:
+#                name: ssl-redirect
+#                port:
+#                  name: use-annotation
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx
+                port:
+                  name: cdn
+    - host: "jgr.smart-wolf.dog"
+      http:
+        paths:
+#          - path: /
+#            pathType: Prefix
+#            backend:
+#              service:
+#                name: ssl-redirect
+#                port:
+#                  name: use-annotation
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx
+                port:
+                  name: jaeger
+    - host: "mhg.smart-wolf.dog"
+      http:
+        paths:
+#          - path: /
+#            pathType: Prefix
+#            backend:
+#              service:
+#                name: ssl-redirect
+#                port:
+#                  name: use-annotation
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mailhog
+                port:
+                  name: mailhog-ui
+    # - host: "co.slr.rwx.dev"
+    #   http:
+    #     paths:
+    #       - path: /
+    #         pathType: Prefix
+    #         backend:
+    #           service:
+    #             name: ssl-redirect
+    #             port:
+    #               name: use-annotation
+    #       - path: /
+    #         pathType: Prefix
+    #         backend:
+    #           service:
+    #             name: saleor-store
+    #             port:
+    #               name: saleor-co
+    # - host: "store.slr.rwx.dev"
+    #   http:
+    #     paths:
+    #       - path: /
+    #         pathType: Prefix
+    #         backend:
+    #           service:
+    #             name: ssl-redirect
+    #             port:
+    #               name: use-annotation
+    #       - path: /
+    #         pathType: Prefix
+    #         backend:
+    #           service:
+    #             name: saleor-store
+    #             port:
+    #               name: saleor-str
+    # - host: "mailhog.slr.rwx.dev"
+    #   http:
+    #     paths:
+    #     - path: /
+    #       pathType: Prefix
+    #       backend:
+    #         service:
+    #           name: ssl-redirect
+    #           port:
+    #             name: use-annotation
+    #     - path: /
+    #       pathType: Prefix
+    #       backend:
+    #         service:
+    #           name: mailhog
+    #           port:
+    #             name: mailhog-ui
+    # - host: "smtp.slr.rwx.dev"
+    #   http:
+    #     paths:
+    #     - path: /
+    #       pathType: Prefix
+    #       backend:
+    #         service:
+    #           name: mailhog
+    #           port:
+    #             name: mailhog-smtp
